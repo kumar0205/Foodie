@@ -13,6 +13,7 @@ const FoodItem = ({ id, name, price, description, image, isShared = false }) => 
     wishlistItems,
     addToWishlist,
     removeFromWishlist,
+    url,
   } = useContext(StoreContext);
 
   const [isWishlisted, setIsWishlisted] = useState(false);
@@ -38,7 +39,7 @@ const FoodItem = ({ id, name, price, description, image, isShared = false }) => 
   return (
     <div className={`food-item ${isShared ? "shared" : ""}`}>
       <div className="food-item-img-container">
-        <img className="food-item-image" src={image} alt={name} />
+        <img className="food-item-image" src={url + "/images/" + image} alt={name} />
 
         {/* ✅ Add to Cart stays at bottom-right */}
         <div className="action-buttons">

@@ -25,9 +25,11 @@ app.use(cookieParser());
 
 // CORS setup for cookies
 app.use(cors({
-  origin: "http://localhost:5173", // frontend URL
+  origin: ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175"], // frontend and admin URLs
   credentials: true // allow cookies to be sent
 }));
+
+app.use("/images", express.static("uploads"));
 
 
 // db connection
@@ -41,7 +43,7 @@ app.use("/api/reviews", reviewRoutes);
 app.use("/api/payment", paymentRoute);
 app.use("/api/restaurant", restaurantRoutes);
 app.use("/api/auth", authRoutes);
-app.use("/api/user", userRoutes); 
+app.use("/api/user", userRoutes);
 
 
 app.get("/", (req, res) => {

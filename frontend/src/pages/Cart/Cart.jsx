@@ -4,7 +4,7 @@ import { StoreContext } from "../../components/context/StoreContext";
 import { useNavigate, Link } from "react-router-dom";
 
 const Cart = () => {
-  const { cartItems, food_list, removeFromCart, getTotalCartAmount, addToCart } = useContext(StoreContext);
+  const { cartItems, food_list, removeFromCart, getTotalCartAmount, addToCart, url } = useContext(StoreContext);
   const navigate = useNavigate();
 
   // Check if cart is empty
@@ -110,7 +110,7 @@ const Cart = () => {
             return (
               <React.Fragment key={item._id}>
                 <div className="cart-items-title cart-items-item">
-                  <img src={item.image} alt="" />
+                  <img src={url + "/images/" + item.image} alt="" />
                   <Link to={`/food/${item._id}`}>{item.name}</Link>
                   <p>${item.price}</p>
                   <div className="cart-quantity-controls">

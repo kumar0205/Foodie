@@ -2,13 +2,13 @@ import React, { useContext, useState, useEffect } from "react";
 import "./CartSummaryBar.css";
 import { StoreContext } from "../context/StoreContext";
 import { useNavigate, useLocation } from "react-router-dom"; //  import useLocation
-import { food_list } from "../../assets/frontend_assets/assets";
+// import { food_list } from "../../assets/frontend_assets/assets";
 import { ShoppingCart, DollarSign } from "lucide-react"; // Add Lucide icons
 
 const FREE_DELIVERY_THRESHOLD = 150; // You can adjust this value as needed
 
 const CartSummaryBar = () => {
-  const { cartItems, getTotalCartAmount } = useContext(StoreContext);
+  const { cartItems, getTotalCartAmount, food_list, url } = useContext(StoreContext);
   const navigate = useNavigate();
   const location = useLocation();
   const [isHovered, setIsHovered] = useState(false); // to show the preview cart dropdown
@@ -93,7 +93,7 @@ const CartSummaryBar = () => {
                 {cartDetails.map((item) => (
                   <li key={item._id} className="mini-cart-item">
                     <img
-                      src={item.image}
+                      src={url + "/images/" + item.image}
                       alt={item.name}
                       className="mini-cart-thumb"
                     />

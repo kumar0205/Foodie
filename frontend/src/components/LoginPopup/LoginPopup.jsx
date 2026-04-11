@@ -15,7 +15,7 @@ const LoginPopup = ({ setShowLogin }) => {
   const [timer, setTimer] = useState(60);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const navigate=useNavigate();
+  const navigate = useNavigate();
 
   const [password, setPassword] = useState('');
   const [passwordStrength, setPasswordStrength] = useState({
@@ -114,13 +114,13 @@ const LoginPopup = ({ setShowLogin }) => {
   const handleResetPassword = (e) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) return toast.error("Passwords do not match");
-      toast.success("Password reset successfully!");
-      setForgotFlow(false);
-      setStage(1);
-      setOtp(Array(6).fill(""));
-      setCurrState("Login");
-    };
-    const handleSubmit = async (e) => {
+    toast.success("Password reset successfully!");
+    setForgotFlow(false);
+    setStage(1);
+    setOtp(Array(6).fill(""));
+    setCurrState("Login");
+  };
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const formData = new FormData(e.target);
@@ -130,8 +130,8 @@ const LoginPopup = ({ setShowLogin }) => {
     const confirmPassword = formData.get("confirmPassword");
 
     if (!email || !password || (currState === "Sign Up" && !name)) {
-        return toast.error("Please fill all fields");
-      }
+      return toast.error("Please fill all fields");
+    }
 
     if (currState === "Sign Up" && password !== confirmPassword) {
       return toast.error("Passwords do not match");
@@ -141,12 +141,13 @@ const LoginPopup = ({ setShowLogin }) => {
       currState === "Sign Up" ? "/api/auth/register" : "/api/auth/login";
 
     try {
-        const { data } = await apiRequest.post(endpoint, { name, email, password });
+      const { data } = await apiRequest.post(endpoint, { name, email, password });
 
       toast.success(`${currState} successful!`);
 
-      // Store user info locally (no token)
+      // Store user info and token locally
       localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("authToken", data.token);
 
       setShowLogin(false);
       window.location.reload();

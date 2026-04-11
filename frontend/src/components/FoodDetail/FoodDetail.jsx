@@ -14,7 +14,7 @@ const PrintableSection = React.forwardRef(({ children }, ref) => (
 ));
 
 const FoodDetail = () => {
-  const { addToCart, removeFromCart, cartItems, food_list } = useContext(StoreContext);
+  const { addToCart, removeFromCart, cartItems, food_list, url } = useContext(StoreContext);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -114,7 +114,7 @@ const FoodDetail = () => {
 
         <div className="food-detail-container">
           <div className="food-detail-image">
-            <img src={foodItem.image} alt={foodItem.name} crossOrigin="anonymous" />
+            <img src={url + "/images/" + foodItem.image} alt={foodItem.name} crossOrigin="anonymous" />
           </div>
 
           <div className="food-detail-info">

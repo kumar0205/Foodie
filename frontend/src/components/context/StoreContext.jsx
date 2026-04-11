@@ -1,39 +1,103 @@
 import { createContext, useState } from "react";
 import { toast } from "react-toastify";
-import { food_list } from "../../assets/frontend_assets/assets";
+import { food_list as initial_food_list } from "../../assets/frontend_assets/assets";
+import axios from "axios";
+import { useEffect } from "react";
 
 export const StoreContext = createContext();
 
 const StoreContextProvider = ({ children }) => {
+  const [food_list, setFoodList] = useState([]);
   const [cartItems, setCartItems] = useState({});
   const [wishlistItems, setWishlistItems] = useState({});
 
- /** Add an item to the cart or increment quantity (with max limit) */
-const addToCart = (itemId) => {
-  setCartItems((prev) => {
-    const currentQty = prev[itemId] || 0;
-    if (currentQty >= 20) {
-      toast.warning("You can only add up to 50 of this item.");
-      return prev; // don’t increase further
+  const url = "http://localhost:4000";
+
+  const fetchFoodList = async () => {
+    try {
+      const response = await axios.get(`${url}/api/food/list`);
+      if (response.data.success && response.data.data && response.data.data.length > 0) {
+        setFoodList(response.data.data);
+      } else {
+        console.warn("API returned no data or success false, falling back to local list");
+        setFoodList(initial_food_list);
+      }
+    } catch (error) {
+      console.error("Fetch error:", error);
+      // Fallback to initial local list if API fails
+      setFoodList(initial_food_list);
     }
-    return {
-      ...prev,
-      [itemId]: currentQty + 1,
-    };
-  });
-};
+  };
+
+  useEffect(() => {
+    async function loadData() {
+      await fetchFoodList();
+      const token = localStorage.getItem("authToken");
+      if (token) {
+        try {
+          const response = await axios.get(`${url}/api/cart/get`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (response.data.items) {
+            const cartData = {};
+            response.data.items.forEach(item => {
+              cartData[item.foodId._id || item.foodId] = item.quantity;
+            });
+            setCartItems(cartData);
+          }
+        } catch (error) {
+          console.error("Error loading cart:", error);
+        }
+      }
+    }
+    loadData();
+  }, []);
+
+  /** Add an item to the cart or increment quantity (with max limit) */
+  const addToCart = async (itemId) => {
+    setCartItems((prev) => {
+      const currentQty = prev[itemId] || 0;
+      return { ...prev, [itemId]: currentQty + 1 };
+    });
+
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      try {
+        const food = food_list.find(f => f._id === itemId);
+        await axios.post(
+          `${url}/api/cart/add`,
+          { foodId: itemId, quantity: 1, restaurantId: food?.restaurantId || "67da10363734e701734b5899" },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      } catch (error) {
+        console.error("Cart sync error:", error);
+      }
+    }
+  };
 
 
   /** Remove an item from the cart or delete if quantity is 1 */
-  const removeFromCart = (itemId) => {
+  const removeFromCart = async (itemId) => {
     setCartItems((prev) => {
-      if (!prev[itemId]) return prev; // nothing to remove
+      if (!prev[itemId]) return prev;
       const updated = { ...prev };
       if (updated[itemId] > 1) updated[itemId] -= 1;
       else delete updated[itemId];
       return updated;
     });
-    toast.error("Item removed from cart!");
+
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      try {
+        await axios.post(
+          `${url}/api/cart/remove`,
+          { foodId: itemId },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      } catch (error) {
+        console.error("Cart sync error:", error);
+      }
+    }
   };
 
   /** Get total cart amount based on quantity & price */
@@ -87,6 +151,8 @@ const addToCart = (itemId) => {
     toggleWishlist,
     isInWishlist,
     getWishlistCount,
+    setCartItems,
+    url,
   };
 
   return (

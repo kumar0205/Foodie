@@ -14,6 +14,7 @@ import ScrollToTopButton from "./components/ScrollToTopButton/ScrollToTopButton"
 import Wishlist from "./pages/wishlist/wishlist";
 import SharedWishlist from "./pages/wishlist/SharedWishlist";
 import Restaurants from "./pages/Restaurants/Restaurants";
+import Success from "./pages/Success/Success";
 import RestaurantDetail from "./pages/Restaurants/RestaurantDetail";
 import Chatbot from "./components/Chatbot/Chatbot";
 import ContactPage from "./pages/Contactpage";
@@ -28,6 +29,7 @@ import ReferralProgram from "./components/Referrals/ReferralProgram";
 import AboutUs from "./components/Aboutus/Aboutus";
 import FAQ from "./components/FAQ/FAQ";
 import Privacy from "./components/Privacy/privacy";
+import MyOrders from "./pages/MyOrders/MyOrders";
 
 const App = () => {
   const [showLogin, setShowLogin] = useState(false);
@@ -37,8 +39,16 @@ const App = () => {
   });
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 3000);
-    return () => clearTimeout(timer);
+    const hasLoaded = sessionStorage.getItem("hasLoaded");
+    if (hasLoaded) {
+      setLoading(false);
+    } else {
+      const timer = setTimeout(() => {
+        setLoading(false);
+        sessionStorage.setItem("hasLoaded", "true");
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
   if (loading) {
@@ -88,19 +98,21 @@ const App = () => {
             <Route path="/food/:id" element={<FoodDetail />} />
             <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/wishlist/:userId" element={<SharedWishlist />} />
+            <Route path="/success" element={<Success />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/restaurants" element={<Restaurants />} />
             <Route path="/referral" element={<ReferralProgram />} />
             <Route path="/restaurant/:id" element={<RestaurantDetail />} />
             <Route path="/aboutus" element={<AboutUs />} />
             <Route path="/privacy" element={<Privacy />} />
+            <Route path="/myorders" element={<MyOrders />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
 
           <ScrollToTopButton /> {/* floating button */}
           <CartSummaryBar />
           <AppDownload />
-          
+
           {/* ✅ Footer now contains FAQ */}
           <Footer>
             <FAQ />

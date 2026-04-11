@@ -61,10 +61,12 @@ import React, { useContext, useState } from "react";
 import "./PlaceOrder.css";
 import { StoreContext } from "../../components/context/StoreContext";
 import Location from "./Location"; // Import the Location component
+import { useNavigate } from "react-router-dom";
 
 const PlaceOrder = () => {
-    const { getTotalCartAmount } = useContext(StoreContext);
+    const { getTotalCartAmount, url, setCartItems } = useContext(StoreContext);
     const [showLocationPopup, setShowLocationPopup] = useState(false);
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -105,36 +107,37 @@ const PlaceOrder = () => {
 
         const token = localStorage.getItem("authToken");
         if (!token) {
-        alert("Please log in to place your order.");
-        return;
+            alert("Please log in to place your order.");
+            return;
         }
 
         const orderData = {
-        ...formData,
-        cartTotal: getTotalCartAmount(),
-        deliveryFee: getTotalCartAmount() === 0 ? 0 : 2,
+            ...formData,
+            cartTotal: getTotalCartAmount(),
+            deliveryFee: getTotalCartAmount() === 0 ? 0 : 2,
         };
 
         try {
-        const response = await fetch("/api/orders/place", {
-            method: "POST",
-            headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(orderData),
-        });
+            const response = await fetch(`${url}/api/order/place`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(orderData),
+            });
 
-        if (!response.ok) throw new Error("Order failed");
+            if (!response.ok) throw new Error("Order failed");
 
-        const data = await response.json();
-        alert("Order placed successfully!");
-        console.log("Server response:", data);
+            const data = await response.json();
+            // alert("Order placed successfully!");
+            console.log("Server response:", data);
 
-        // Optional: navigate("/thankyou");
+            setCartItems({}); // Clear cart Locally
+            navigate("/success");
         } catch (error) {
-        console.error("Order error:", error);
-        alert("Failed to place order.");
+            console.error("Order error:", error);
+            alert("Failed to place order.");
         }
     };
 
@@ -143,92 +146,92 @@ const PlaceOrder = () => {
             <form className="place-order" onSubmit={handleSubmit}>
                 <div className="place-order-left">
                     <p className="title">Delivery Information</p>
-                    
-                   
-                    
+
+
+
                     <div className="multi-fields">
-                        <input 
+                        <input
                             name="firstName"
-                            placeholder="First Name" 
-                            type="text" 
+                            placeholder="First Name"
+                            type="text"
                             value={formData.firstName}
                             onChange={handleInputChange}
                         />
-                        <input 
+                        <input
                             name="lastName"
-                            placeholder="Last Name" 
-                            type="text" 
+                            placeholder="Last Name"
+                            type="text"
                             value={formData.lastName}
                             onChange={handleInputChange}
                         />
                     </div>
-                    <input 
+                    <input
                         name="email"
-                        placeholder="Email Address" 
-                        type="email" 
+                        placeholder="Email Address"
+                        type="email"
                         value={formData.email}
                         onChange={handleInputChange}
                     />
-                    <input 
+                    <input
                         name="street"
-                        placeholder="Street" 
-                        type="text" 
+                        placeholder="Street"
+                        type="text"
                         value={formData.street}
                         onChange={handleInputChange}
                     />
                     <div className="multi-fields">
-                        <input 
+                        <input
                             name="city"
-                            placeholder="City" 
-                            type="text" 
+                            placeholder="City"
+                            type="text"
                             value={formData.city}
                             onChange={handleInputChange}
                         />
-                        <input 
+                        <input
                             name="state"
-                            placeholder="State" 
-                            type="text" 
+                            placeholder="State"
+                            type="text"
                             value={formData.state}
                             onChange={handleInputChange}
                         />
                     </div>
                     <div className="multi-fields">
-                        <input 
+                        <input
                             name="zipCode"
-                            placeholder="Zip Code" 
-                            type="text" 
+                            placeholder="Zip Code"
+                            type="text"
                             value={formData.zipCode}
                             onChange={handleInputChange}
                         />
-                        <input 
+                        <input
                             name="country"
-                            placeholder="Country" 
-                            type="text" 
+                            placeholder="Country"
+                            type="text"
                             value={formData.country}
                             onChange={handleInputChange}
                         />
                     </div>
-                    <input 
+                    <input
                         name="phone"
-                        type="text" 
-                        placeholder="Phone" 
+                        type="text"
+                        placeholder="Phone"
                         value={formData.phone}
                         onChange={handleInputChange}
                     />
 
 
-                     {/* Location Button */}
-                    <button 
-                        type="button" 
+                    {/* Location Button */}
+                    <button
+                        type="button"
                         className="select-location-btn"
                         onClick={() => setShowLocationPopup(true)}
                     >
-                         Select Current Location
+                        Select Current Location
                     </button>
                 </div>
 
 
-                 
+
 
 
 
@@ -262,7 +265,7 @@ const PlaceOrder = () => {
 
             {/* Location Popup */}
             {showLocationPopup && (
-                <Location 
+                <Location
                     onLocationSelect={handleLocationSelect}
                     onClose={handleCloseLocationPopup}
                 />

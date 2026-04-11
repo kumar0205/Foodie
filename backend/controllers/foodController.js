@@ -43,7 +43,7 @@ const getFoodByRestaurant = async (req, res) => {
 const removeFood = async (req, res) => {
   try {
     const food = await Food.findById(req.body.id);
-    fs.unlink(`uploads/${food.image}`, () => {});
+    fs.unlink(`uploads/${food.image}`, () => { });
     await Food.findByIdAndDelete(req.body.id);
     res.json({ success: true, message: "Food item removed" });
   } catch (error) {
@@ -52,5 +52,16 @@ const removeFood = async (req, res) => {
   }
 };
 
+// List all food items
+const listFood = async (req, res) => {
+  try {
+    const foods = await Food.find({});
+    res.status(200).json({ success: true, data: foods });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Error fetching food list" });
+  }
+};
+
 // ✅ Export all at once (no duplicates)
-export { addFood, getFoodByRestaurant, removeFood };
+export { addFood, getFoodByRestaurant, removeFood, listFood };

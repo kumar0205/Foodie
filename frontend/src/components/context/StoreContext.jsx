@@ -35,7 +35,7 @@ const StoreContextProvider = ({ children }) => {
       const token = localStorage.getItem("authToken");
       if (token) {
         try {
-          const response = await axios.get(`${url}/api/cart/get`, {
+          const response = await axios.get(`${url}/api/cart`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           if (response.data.items) {
@@ -51,6 +51,10 @@ const StoreContextProvider = ({ children }) => {
       }
     }
     loadData();
+
+    // 🔄 Add polling to keep the list fresh (every 30 seconds)
+    const interval = setInterval(fetchFoodList, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   /** Add an item to the cart or increment quantity (with max limit) */
@@ -153,6 +157,7 @@ const StoreContextProvider = ({ children }) => {
     getWishlistCount,
     setCartItems,
     url,
+    fetchFoodList,
   };
 
   return (

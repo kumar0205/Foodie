@@ -33,11 +33,13 @@ export const getCart = async (req, res) => {
   try {
     const userId = req.user._id;
 
-    const cart = await Cart.findOne({ userId }).populate("items.foodId items.restaurantId");
+    let cart = await Cart.findOne({ userId });
 
     if (!cart) {
       return res.status(200).json({ items: [] });
     }
+
+    cart = await cart.populate("items.foodId items.restaurantId");
 
     res.status(200).json(cart);
   } catch (error) {

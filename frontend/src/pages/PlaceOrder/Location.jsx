@@ -7,6 +7,8 @@ const Location = ({ onLocationSelect, onClose }) => {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
   const mapRef = useRef(null);
 
   useEffect(() => {
@@ -72,21 +74,28 @@ const Location = ({ onLocationSelect, onClose }) => {
       // Default to Vijayawada coordinates
       let lat = 16.5062;
       let lng = 80.6480;
+      let usedDefault = true;
 
       // Try to get user's location
       try {
         if (navigator.geolocation) {
           console.log('Getting user location...');
+          setIsLoading(true);
+          // @ts-ignore
+          document.querySelector('.loading p')?.innerText = "Acquiring precise location...";
+          
           const position = await getCurrentPosition();
           lat = position.coords.latitude;
           lng = position.coords.longitude;
+          usedDefault = false;
           console.log('Got user location:', lat, lng);
         }
       } catch (geoError) {
-        console.log('Geolocation failed, using default location');
+        console.error('Geolocation failed or timed out:', geoError);
+        // We will continue with default location but maybe show a toast or message
       }
 
-      createMap(lat, lng);
+      createMap(lat, lng, usedDefault ? 13 : 16);
     } catch (err) {
       console.error('Error initializing map:', err);
       setError(`Failed to load map: ${err.message}`);
@@ -99,9 +108,71 @@ const Location = ({ onLocationSelect, onClose }) => {
       navigator.geolocation.getCurrentPosition(
         resolve,
         reject,
-        { timeout: 5000, enableHighAccuracy: false }
+        { 
+          timeout: 10000, 
+          enableHighAccuracy: true,
+          maximumAge: 0
+        }
       );
     });
+  };
+
+  const handleLocateMe = async () => {
+    setIsLoading(true);
+    try {
+      if (navigator.geolocation) {
+        const position = await getCurrentPosition();
+        const { latitude, longitude } = position.coords;
+        if (map && marker) {
+          map.setView([latitude, longitude], 17);
+          marker.setLatLng([latitude, longitude]);
+          reverseGeocode(latitude, longitude);
+        }
+      } else {
+        setError('Geolocation is not supported by your browser');
+      }
+    } catch (err) {
+      console.error('Locate me failed:', err);
+      setError('Could not get your precise location. Please select it on the map.');
+      setTimeout(() => setError(null), 3000);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAddressSearch = async (e) => {
+    e?.preventDefault();
+    if (!searchQuery.trim()) return;
+    
+    setIsSearching(true);
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&limit=1&addressdetails=1`
+      );
+      
+      if (!response.ok) throw new Error('Search failed');
+      
+      const data = await response.json();
+      
+      if (data && data.length > 0) {
+        const { lat, lon, display_name } = data[0];
+        const latitude = parseFloat(lat);
+        const longitude = parseFloat(lon);
+        
+        if (map && marker) {
+          map.setView([latitude, longitude], 16);
+          marker.setLatLng([latitude, longitude]);
+          reverseGeocode(latitude, longitude);
+        }
+      } else {
+        alert('No results found for this address. Please try something else.');
+      }
+    } catch (err) {
+      console.error('Search error:', err);
+      alert('Search failed. Please try again or select manually on the map.');
+    } finally {
+      setIsSearching(false);
+    }
   };
 
   const loadLeaflet = () => {
@@ -121,7 +192,7 @@ const Location = ({ onLocationSelect, onClose }) => {
     });
   };
 
-  const createMap = (lat, lng) => {
+  const createMap = (lat, lng, zoom = 13) => {
     try {
       console.log('Creating map with coordinates:', lat, lng);
       console.log('Map container element:', mapRef.current);
@@ -151,7 +222,7 @@ const Location = ({ onLocationSelect, onClose }) => {
       console.log('Creating Leaflet map...');
       const mapInstance = window.L.map(mapRef.current, {
         center: [lat, lng],
-        zoom: 13,
+        zoom: zoom,
         zoomControl: true,
         scrollWheelZoom: true,
         doubleClickZoom: true,
@@ -339,8 +410,23 @@ const Location = ({ onLocationSelect, onClose }) => {
 
       {/* Always render the map container so it's available in the DOM */}
       <div className="location-content">
+        <form className="map-search-form" onSubmit={handleAddressSearch}>
+          <input 
+            type="text" 
+            placeholder="Search for your street, area, or city..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <button type="submit" disabled={isSearching}>
+            {isSearching ? '...' : 'Search'}
+          </button>
+        </form>
+
         <div className="map-container">
           <div ref={mapRef} className="map"></div>
+          <button className="locate-me-btn" onClick={handleLocateMe} title="Use my current location">
+            📍
+          </button>
         </div>
 
         {isLoading ? (
@@ -355,6 +441,9 @@ const Location = ({ onLocationSelect, onClose }) => {
               <div className="location-details">
                 <p><strong>Selected Address:</strong></p>
                 <p className="address-text">{selectedLocation.fullAddress}</p>
+                <p className="location-hint">
+                  <i>Not accurate? You can drag the marker or click on the map to select the correct spot.</i>
+                </p>
               </div>
             )}
 

@@ -38,15 +38,20 @@ export const updateUserProfile = async (req, res) => {
       }
     }
 
-    const updatedUser = await User.findByIdAndUpdate(
+    let updatedUser = await User.findByIdAndUpdate(
       userId,
       {
         ...(name && { name }),
         ...(email && { email }),
-        ...(favoriteRestaurant && { favoriteRestaurant })
+        ...(favoriteRestaurant && { favoriteRestaurant }),
+        ...(req.body.address && { address: req.body.address })
       },
       { new: true, runValidators: true }
-    ).select('-password').populate('favoriteRestaurant', 'name address phone');
+    );
+    if (updatedUser) {
+      delete updatedUser.password;
+      updatedUser = await updatedUser.populate('favoriteRestaurant', 'name address phone');
+    }
 
     res.status(200).json({
       success: true,
@@ -238,11 +243,15 @@ export const setFavoriteRestaurant = async (req, res) => {
       return res.status(400).json({ message: 'Restaurant ID is required' });
     }
 
-    const updatedUser = await User.findByIdAndUpdate(
+    let updatedUser = await User.findByIdAndUpdate(
       userId,
       { favoriteRestaurant: restaurantId },
       { new: true }
-    ).select('-password').populate('favoriteRestaurant', 'name address phone');
+    );
+    if (updatedUser) {
+      delete updatedUser.password;
+      updatedUser = await updatedUser.populate('favoriteRestaurant', 'name address phone');
+    }
 
     res.status(200).json({
       success: true,
@@ -263,7 +272,10 @@ export const removeFavoriteRestaurant = async (req, res) => {
       userId,
       { $unset: { favoriteRestaurant: 1 } },
       { new: true }
-    ).select('-password');
+    );
+    if (updatedUser) {
+      delete updatedUser.password;
+    }
 
     res.status(200).json({
       success: true,

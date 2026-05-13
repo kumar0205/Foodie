@@ -1,0 +1,94 @@
+.booking-ticket {
+    background: white;
+    width: 300px;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    font-family: 'Courier New', Courier, monospace;
+    color: #333;
+    position: relative;
+}
+
+.ticket-header {
+    background: #ff4c24;
+    color: white;
+    padding: 15px;
+    text-align: center;
+}
+
+.ticket-header h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+}
+
+.serial {
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+.ticket-body {
+    padding: 20px;
+    border-bottom: 2px dashed #ccc;
+}
+
+.ticket-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.info-group label {
+    display: block;
+    font-size: 0.6rem;
+    color: #999;
+}
+
+.info-group span {
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.barcode {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 3px;
+    height: 40px;
+    margin-top: 20px;
+}
+
+.bar { background: #333; width: 3px; height: 100%; }
+.bar.short { height: 60%; }
+.bar.long { height: 120%; width: 5px; }
+
+.ticket-footer {
+    padding: 15px;
+    text-align: center;
+    background: #fdfdfd;
+}
+
+.ticket-footer p {
+    font-size: 0.7rem;
+    margin: 0 0 5px 0;
+}
+
+.ticket-footer span {
+    font-weight: bold;
+    color: #ff4c24;
+    text-transform: uppercase;
+}
+
+/* Scalloped edges effect */
+.booking-ticket::before, .booking-ticket::after {
+    content: "";
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: #f8f9fa; /* matches container background */
+    border-radius: 50%;
+    top: 65%;
+}
+
+.booking-ticket::before { left: -10px; }
+.booking-ticket::after { right: -10px; }

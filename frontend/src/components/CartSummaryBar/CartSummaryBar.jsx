@@ -93,7 +93,7 @@ const CartSummaryBar = () => {
                 {cartDetails.map((item) => (
                   <li key={item._id} className="mini-cart-item">
                     <img
-                      src={url + "/images/" + item.image}
+                      src={item.image.startsWith("http") ? item.image : url + "/images/" + item.image}
                       alt={item.name}
                       className="mini-cart-thumb"
                     />

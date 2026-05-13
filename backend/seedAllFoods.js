@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import "dotenv/config";
 import foodModel from "./models/foodModel.js";
 
@@ -41,19 +40,21 @@ const foodData = [
 
 const seedAll = async () => {
     try {
-        await mongoose.connect(process.env.MONGODB_URI);
-        console.log("Connected to MongoDB for full seed...");
+        console.log("Starting full Firestore seed...");
 
-        // Add dummy restaurantId and description to all items
         const fullFoodData = foodData.map(item => ({
             ...item,
             description: "Food provides essential nutrients for overall health and well-being",
-            restaurantId: new mongoose.Types.ObjectId("67da10363734e701734b5899") // Using a consistent dummy ID
+            restaurantId: "67da10363734e701734b5899"
         }));
 
         await foodModel.deleteMany({});
-        await foodModel.insertMany(fullFoodData);
-        console.log(`✅ Successfully seeded ${fullFoodData.length} items!`);
+        
+        for (const item of fullFoodData) {
+            await foodModel.create(item);
+        }
+
+        console.log(`✅ Successfully seeded ${fullFoodData.length} items to Firestore!`);
         process.exit(0);
     } catch (error) {
         console.error("❌ Seeding failed:", error);

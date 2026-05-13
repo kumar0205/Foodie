@@ -1,22 +1,29 @@
-// foodController.js
-
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage } from "../config/firebase.js";
 import Food from "../models/foodModel.js";
-import fs from 'fs';
 
 // Add food item
 const addFood = async (req, res) => {
   try {
     const body = { ...req.body };
-    console.log("Parsed restaurantId:", body.restaurantId);
-    console.log("Type:", typeof body.restaurantId);
+
+    let imageUrl = "";
+    if (req.file) {
+      const filename = `${Date.now()}_${req.file.originalname}`;
+      const storageRef = ref(storage, `food_images/${filename}`);
+      await uploadBytes(storageRef, req.file.buffer);
+      imageUrl = await getDownloadURL(storageRef);
+    } else if (body.image) {
+      imageUrl = body.image;
+    }
 
     const newFood = new Food({
       name: body.name,
-      price: body.price,
+      price: Number(body.price),
       description: body.description,
       category: body.category,
       restaurantId: body.restaurantId,
-      image: req.file?.filename,
+      image: imageUrl,
     });
 
     await newFood.save();
@@ -43,7 +50,6 @@ const getFoodByRestaurant = async (req, res) => {
 const removeFood = async (req, res) => {
   try {
     const food = await Food.findById(req.body.id);
-    fs.unlink(`uploads/${food.image}`, () => { });
     await Food.findByIdAndDelete(req.body.id);
     res.json({ success: true, message: "Food item removed" });
   } catch (error) {
@@ -63,5 +69,43 @@ const listFood = async (req, res) => {
   }
 };
 
-// ✅ Export all at once (no duplicates)
-export { addFood, getFoodByRestaurant, removeFood, listFood };
+// Update food item
+const updateFood = async (req, res) => {
+  try {
+    const { id, name, price, description, category, available } = req.body;
+    const updateData = {
+      name,
+      price: Number(price),
+      description,
+      category,
+      available: available === 'true' || available === true
+    };
+
+    if (req.file) {
+      const filename = `${Date.now()}_${req.file.originalname}`;
+      const storageRef = ref(storage, `food_images/${filename}`);
+      await uploadBytes(storageRef, req.file.buffer);
+      updateData.image = await getDownloadURL(storageRef);
+    }
+
+    await Food.findByIdAndUpdate(id, updateData);
+    res.json({ success: true, message: "Food item updated" });
+  } catch (error) {
+    console.error("❌ Update food error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Toggle food availability
+const toggleAvailability = async (req, res) => {
+  try {
+    const { id, available } = req.body;
+    await Food.findByIdAndUpdate(id, { available });
+    res.json({ success: true, message: `Food is now ${available ? 'Available' : 'Unavailable'}` });
+  } catch (error) {
+    console.error("❌ Toggle availability error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export { addFood, getFoodByRestaurant, removeFood, listFood, updateFood, toggleAvailability };

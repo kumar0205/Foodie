@@ -51,7 +51,7 @@ const SharedWishlist = () => {
         setViewCount(viewCount + 1);
         
         // Filter food items based on the shared wishlist IDs
-        const filtered = food_list.filter(food => wishlistIds.includes(food._id));
+        const filtered = food_list.filter(food => wishlistIds.includes(food._id) && food.available !== false);
         setWishlistedItems(filtered);
         setLoading(false);
       } catch (err) {

@@ -10,6 +10,7 @@
   color: var(--text-color, #111);
   border: 2px solid var(--border-color, #e2e8f0);
   position: relative;
+  cursor: pointer;
 }
 
 .food-item:hover {
@@ -91,22 +92,33 @@
   font-weight: 600;
 }
 
-.view-btn {
+.view-btn,
+.add-to-cart-footer-btn {
   display: flex;
   align-items: center;
   gap: 6px;
   background-color: #ff6347;
   border: none;
-  padding: 8px 12px;
+  padding: 8px 16px;
   border-radius: 50px;
   color: white;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-.view-btn:hover {
+.view-btn:hover,
+.add-to-cart-footer-btn:hover {
   background-color: #e5533d;
+  transform: scale(1.05);
+}
+
+.add-to-cart-footer-btn {
+  background-color: #2ecc71;
+}
+
+.add-to-cart-footer-btn:hover {
+  background-color: #27ae60;
 }
 
 /* ✅ Buttons at bottom */

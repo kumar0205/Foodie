@@ -1,10 +1,15 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import './FoodDisplay.css';
 import { StoreContext } from '../context/StoreContext';
 import FoodItem from '../FoodItem/FoodItem';
 
-const FoodDisplay = ({ category }) => {
-  const { food_list } = useContext(StoreContext);
+const FoodDisplay = ({ category, searchQuery = "" }) => {
+  const { food_list, fetchFoodList } = useContext(StoreContext);
+
+  useEffect(() => {
+    fetchFoodList();
+  }, []);
+
   const [filterType, setFilterType] = useState('all'); // all | veg | non-veg
 
   const handleToggle = (type) => {
@@ -12,12 +17,21 @@ const FoodDisplay = ({ category }) => {
   };
 
   const filteredFoodList = food_list.filter((item) => {
+    // 🛑 First check availability
+    if (item.available === false) return false;
+
     const matchCategory = category === item.category || category === 'All';
     const matchType =
       filterType === 'all' ||
       (filterType === 'veg' && item.type === 'veg') ||
       (filterType === 'non-veg' && item.type === 'nonveg');
-    return matchCategory && matchType;
+    
+    const matchSearch = 
+      searchQuery === "" || 
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.description.toLowerCase().includes(searchQuery.toLowerCase());
+
+    return matchCategory && matchType && matchSearch;
   });
 
   return (

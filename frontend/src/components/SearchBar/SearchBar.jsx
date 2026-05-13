@@ -125,7 +125,7 @@ const SearchBar = ({
     setIsOpen(true);
   };
 
-  const handleSearch = (searchQuery = debounceQuery) => {
+  const handleSearch = (searchQuery = query) => {
     if (searchQuery.trim()) {
       onSearch && onSearch(searchQuery.trim());
       setIsOpen(false);

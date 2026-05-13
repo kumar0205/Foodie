@@ -2,10 +2,10 @@ import SearchBar from "../SearchBar/SearchBar";
 
 import "./Header.css";
 import { Star, Clock, MapPin, ArrowRight, Play } from "lucide-react";
-const Header = () => {
+const Header = ({ onSearch, suggestions }) => {
   return (
     <div className="hero-container">
-      <SearchBar />
+      <SearchBar onSearch={onSearch} suggestions={suggestions} />
       <div className="hero-background"></div>
 
       <div className="hero-content">

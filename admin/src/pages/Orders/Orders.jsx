@@ -3,6 +3,7 @@ import './Orders.css'
 import { toast } from 'react-toastify'
 import axios from 'axios'
 import { assets } from '../../assets/assets'
+import { io } from 'socket.io-client'
 
 const Orders = ({ url }) => {
 
@@ -42,13 +43,76 @@ const Orders = ({ url }) => {
 
   useEffect(() => {
     fetchAllOrders()
+
+    const socket = io(url)
+
+    socket.on("connect", () => {
+      socket.emit("joinAdminRoom")
+    })
+
+    socket.on("newOrder", (order) => {
+      toast.info("New order received!")
+      fetchAllOrders()
+    })
+
+    socket.on("statusUpdated", (updatedOrder) => {
+      fetchAllOrders()
+    })
+
+    return () => {
+      socket.disconnect()
+    }
   }, [])
+
+  const [filter, setFilter] = useState("Latest")
+
+  const filteredOrders = filter === "All" 
+    ? orders 
+    : filter === "Latest"
+      ? orders.filter(order => !order.status || order.status === "Pending" || order.status === "Food Processing")
+      : orders.filter(order => order.status === filter)
+
+  const latestCount = orders.filter(order => !order.status || order.status === "Pending" || order.status === "Food Processing").length
+
+  const getCount = (status) => {
+    if (status === "All") return orders.length;
+    if (status === "Latest") return latestCount;
+    return orders.filter(order => order.status === status).length;
+  }
+
+  const getBadgeClass = (status) => {
+    switch(status) {
+      case "All": return "badge-grey";
+      case "Pending": return "badge-orange";
+      case "Accepted": return "badge-blue";
+      case "Preparing": return "badge-yellow";
+      case "Ready for delivery": return "badge-indigo";
+      case "Out for delivery": return "badge-purple";
+      case "Delivered": return "badge-green";
+      default: return "";
+    }
+  }
 
   return (
     <div className='order add'>
-      <h3>Order Page</h3>
+      <div className="order-header-admin">
+        <h3>Order Page</h3>
+        <div className="status-categories">
+          {["Latest", "All", "Pending", "Accepted", "Preparing", "Ready for delivery", "Out for delivery", "Delivered"].map((status) => (
+            <button 
+              key={status} 
+              className={`${filter === status ? "active" : ""} category-btn`} 
+              onClick={() => setFilter(status)}
+            >
+              {status}
+              {getCount(status) > 0 && <span className={`notification-badge ${getBadgeClass(status)}`}>{getCount(status)}</span>}
+            </button>
+          ))}
+        </div>
+      </div>
       <div className="order-list">
-        {orders.map((order, index) => (
+        {filteredOrders.length === 0 ? <p className='no-orders'>No orders in this category.</p> : 
+        filteredOrders.map((order, index) => (
           <div key={index} className='order-item'>
             <img src={assets.parcel_icon} alt="" />
             <div>
@@ -62,19 +126,38 @@ const Orders = ({ url }) => {
                   }
                 })}
               </p>
-              <p className='order-item-name'>{order.address ? order.address.firstName + " " + order.address.lastName : "No Name Provided"}</p>
+              <p className='order-item-name'>
+                {order.address 
+                  ? (order.address.name || ((order.address.firstName || "") + " " + (order.address.lastName || "")).trim() || "No Name Provided") 
+                  : "No Name Provided"}
+              </p>
               <div className="order-item-address">
-                <p>{order.address ? order.address.street + "," : ""}</p>
-                <p>{order.address ? order.address.city + ", " + order.address.state + ", " + order.address.country + ", " + order.address.zipCode : "No address provided"}</p>
+                <p>{order.address ? (order.address.doorNo ? order.address.doorNo + ", " : "") + (order.address.street || "") + "," : ""}</p>
+                <p>
+                  {order.address 
+                    ? [
+                        order.address.village,
+                        order.address.town || order.address.city,
+                        order.address.state,
+                        order.address.country,
+                        order.address.pincode || order.address.zipCode
+                      ].filter(Boolean).join(", ")
+                    : "No address provided"}
+                </p>
               </div>
-              <p className='order-item-phone'>{order.address ? order.address.phone : ""}</p>
+              <p className='order-item-phone'>{order.address ? order.address.phone || order.address.phoneNumber : ""}</p>
+              <p className='order-item-date'><b>Ordered on:</b> {new Date(order.date || order.createdAt).toLocaleDateString()} at {new Date(order.date || order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
             </div>
             <p>Items: {order.items.length}</p>
             <p>${order.totalAmount}</p>
             <select onChange={(event) => statusHandler(event, order._id)} value={order.status}>
-              <option value="Food Processing">Food Processing</option>
+              <option value="Pending">Pending</option>
+              <option value="Accepted">Accepted</option>
+              <option value="Preparing">Preparing</option>
+              <option value="Ready for delivery">Ready for delivery</option>
               <option value="Out for delivery">Out for delivery</option>
               <option value="Delivered">Delivered</option>
+              <option value="Cancelled">Cancelled</option>
             </select>
           </div>
         ))}

@@ -80,12 +80,20 @@ const Navbar = ({ setShowLogin }) => {
         <span>Home</span>
       </Link>
       <Link
-        to="/restaurants"
-        onClick={() => setMenu("restaurants")}
-        className={`nav-item ${menu === "restaurants" ? "active" : ""}`}
+        to="/book-table"
+        onClick={() => setMenu("book-table")}
+        className={`nav-item ${menu === "book-table" ? "active" : ""}`}
       >
-        <Utensils size={18} />
-        <span>Restaurant</span>
+        <Users size={18} />
+        <span>Book Table</span>
+      </Link>
+      <Link
+        to="/mybookings"
+        onClick={() => setMenu("my-bookings")}
+        className={`nav-item ${menu === "my-bookings" ? "active" : ""}`}
+      >
+        <Smartphone size={18} />
+        <span>My Bookings</span>
       </Link>
       <Link
         to="/"
@@ -96,15 +104,7 @@ const Navbar = ({ setShowLogin }) => {
         <Menu size={18} />
         <span>Menu</span>
       </Link>
-      <Link
-        to="/"
-        state={{ scrollTo: "appdownload" }}
-        onClick={() => setMenu("mobile-app")}
-        className={`nav-item ${menu === "mobile-app" ? "active" : ""}`}
-      >
-        <Smartphone size={18} />
-        <span>Mobile App</span>
-      </Link>
+
       <Link
         to="/wishlist"
         onClick={() => setMenu("wishlist")}
@@ -142,13 +142,13 @@ const Navbar = ({ setShowLogin }) => {
         <span>Contact</span>
       </Link>
       <Link
-        to="/referral"
-        onClick={() => setMenu("referral")}
-        className={`nav-item ${menu === "referral" ? "active" : ""}`}
+        to="/"
+        state={{ scrollTo: "appdownload" }}
+        onClick={() => setMenu("mobile-app")}
+        className={`nav-item ${menu === "mobile-app" ? "active" : ""}`}
       >
-        <CircleDollarSign size={20} strokeWidth={1.8} />
-
-        <span>Refer & Earn</span>
+        <Smartphone size={18} />
+        <span>Mobile App</span>
       </Link>
     </>
   );

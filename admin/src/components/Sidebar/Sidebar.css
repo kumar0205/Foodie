@@ -23,6 +23,24 @@
     padding: 8px 10px;
     border-radius: 3px 0 3px 0;
     cursor: pointer;
+    position: relative; /* Added for badge */
+}
+
+.sidebar-badge {
+    position: absolute;
+    right: 15px;
+    background-color: #ff3b30;
+    color: white;
+    font-size: 11px;
+    font-weight: 800;
+    min-width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(255, 59, 48, 0.4);
+    border: 2px solid white;
 }
 
 .sidebar-option.active {

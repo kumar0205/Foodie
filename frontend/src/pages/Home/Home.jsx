@@ -1,15 +1,19 @@
 import { useLocation } from "react-router-dom";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import "./Home.css";
 import Header from "../../components/Header/Header";
 import ExploreMenu from "../../components/ExploreMenu/ExploreMenu";
 import FoodDisplay from "../../components/FoodDisplay/FoodDisplay";
-import { use } from "react";
+import { StoreContext } from "../../components/context/StoreContext";
 
 const Home = () => {
+  const { food_list } = useContext(StoreContext);
   const location = useLocation();
   const [category, setCategory] = useState('All');
+  const [searchQuery, setSearchQuery] = useState("");
   const [showButton, setShowButton] = useState(false);
+
+  const suggestions = food_list.map(item => item.name);
  
   useEffect(() => {
       if (location.state?.scrollTo){
@@ -41,11 +45,20 @@ const Home = () => {
     }
   }, []);
 
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    setCategory('All'); // Reset category to 'All' for global search
+    const section = document.getElementById("food-display");
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <div className="home-page">
-      <Header />
+      <Header onSearch={handleSearch} suggestions={suggestions} />
       <ExploreMenu category={category} setCategory={setCategory} />
-      <FoodDisplay category={category} />
+      <FoodDisplay category={category} searchQuery={searchQuery} />
     </div>
   );
 };

@@ -1,5 +1,6 @@
-import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../config/firebase.js";
 import User from '../models/userModel.js';
 
 const generateToken = (id) => {
@@ -7,71 +8,75 @@ const generateToken = (id) => {
 };
 
 export const registerUser = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, role = 'customer' } = req.body;
+  try {
+    // 1. Check if user already exists in local/Firestore first
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
 
-  // Check if user already exists
-  const userExists = await User.findOne({ email });
-  if (userExists) {
-    return res.status(400).json({ message: 'User already exists' });
+    // 2. Create user in Firebase Authentication
+    const fbUserCred = await createUserWithEmailAndPassword(auth, email, password);
+    const uid = fbUserCred.user.uid;
+
+    // 3. Create user profile in Firestore
+    const user = await User.create({ _id: uid, id: uid, name, email, password: "", role });
+
+    // 4. Generate JWT for existing auth flow compatibility
+    const token = generateToken(uid);
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.status(201).json({
+      success: true,
+      user: { _id: uid, id: uid, name: name, email: email, role },
+      token: token,
+      message: 'Registration successful',
+    });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
   }
-
-  // Hash password
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  // Create user
-  const user = await User.create({ name, email, password: hashedPassword });
-
-  // Generate JWT
-  const token = generateToken(user._id);
-
-  // Set JWT in secure, HTTP-only cookie
-  res.cookie('token', token, {
-    httpOnly: true, // Prevent JS access (XSS protection)
-    sameSite: 'strict', // CSRF protection
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-  });
-
-  res.status(201).json({
-    user: { _id: user._id, name: user.name, email: user.email },
-    token: token,
-    message: 'Registration successful',
-  });
 };
 
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
+  try {
+    // 1. Sign in via Firebase Authentication
+    const fbUserCred = await signInWithEmailAndPassword(auth, email, password);
+    const uid = fbUserCred.user.uid;
 
-  // Find user
-  const user = await User.findOne({ email });
-  if (!user) {
-    return res.status(401).json({ message: 'User not found' });
+    // 2. Retrieve profile from Firestore
+    const user = await User.findById(uid);
+    if (!user) {
+      return res.status(401).json({ message: 'User not found in Firestore' });
+    }
+
+    // 3. Generate JWT for existing auth flow compatibility
+    const token = generateToken(uid);
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.json({
+      success: true,
+      user: { _id: uid, id: uid, name: user.name, email: user.email, role: user.role || 'customer' },
+      token: token,
+      message: 'Login successful',
+    });
+  } catch (error) {
+    res.status(401).json({ success: false, message: error.message });
   }
-
-  // Compare password
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) {
-    return res.status(401).json({ message: 'Invalid password' });
-  }
-
-  // Generate JWT
-  const token = generateToken(user._id);
-
-  // Set JWT in secure, HTTP-only cookie
-  res.cookie('token', token, {
-    httpOnly: true,
-    sameSite: 'strict',
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  });
-
-  res.json({
-    user: { _id: user._id, name: user.name, email: user.email },
-    token: token,
-    message: 'Login successful',
-  });
 };
 
 export const logoutUser = async (req, res) => {
-  // Clear the JWT cookie
   res.cookie('token', '', {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
@@ -79,5 +84,5 @@ export const logoutUser = async (req, res) => {
     expires: new Date(0),
   });
 
-  res.status(200).json({ message: 'User logged out successfully' });
+  res.status(200).json({ success: true, message: 'User logged out successfully' });
 };

@@ -9,7 +9,7 @@ const Wishlist = () => {
 
   // Update wishlist items whenever wishlistItems or food_list changes
   useEffect(() => {
-    const filtered = food_list.filter(food => wishlistItems[food._id]);
+    const filtered = food_list.filter(food => wishlistItems[food._id] && food.available !== false);
     setWishlistedItems(filtered);
   }, [wishlistItems, food_list]);
 

@@ -1,11 +1,9 @@
-import mongoose from "mongoose";
 import "dotenv/config";
 import foodModel from "./models/foodModel.js";
 
 const seedData = async () => {
     try {
-        await mongoose.connect(process.env.MONGODB_URI);
-        console.log("Connected to MongoDB for seeding...");
+        console.log("Seeding Cloud Firestore...");
 
         // Sample Data
         const sampleFoods = [
@@ -15,7 +13,7 @@ const seedData = async () => {
                 price: 12,
                 image: "food_1.png",
                 category: "Salad",
-                restaurantId: new mongoose.Types.ObjectId() // Dummy ID for demo
+                restaurantId: "dummy_rest_id_1"
             },
             {
                 name: "Lasagna",
@@ -23,24 +21,31 @@ const seedData = async () => {
                 price: 18,
                 image: "food_2.png",
                 category: "Pasta",
-                restaurantId: new mongoose.Types.ObjectId()
+                restaurantId: "dummy_rest_id_2"
             }
         ];
 
-        // 1. Create (Insert)
-        await foodModel.deleteMany({}); // Clear existing
-        const inserted = await foodModel.insertMany(sampleFoods);
-        console.log("✅ Seeded 2 items successfully!");
+        // 1. Clear existing
+        await foodModel.deleteMany({});
+        
+        // 2. Insert items
+        for (const food of sampleFoods) {
+            await foodModel.create(food);
+        }
+        console.log("✅ Seeded 2 items successfully into Firestore!");
 
-        // 2. Read (Query)
-        const allFoods = await foodModel.find();
-        console.log("🔍 Found foods in DB:", allFoods.length);
+        // 3. Read
+        const allFoods = await foodModel.find({});
+        console.log("🔍 Found foods in Firestore:", allFoods.length);
 
-        // 3. Update
-        await foodModel.updateOne({ name: "Greek Salad" }, { price: 15 });
-        console.log("Update check: Greek Salad price is now 15");
+        // 4. Update
+        const salad = await foodModel.findOne({ name: "Greek Salad" });
+        if (salad) {
+            await foodModel.findByIdAndUpdate(salad._id, { price: 15 });
+            console.log("Update check: Greek Salad price is now 15");
+        }
 
-        console.log("\nTutorial complete! You can now see these items in your Atlas dashboard under 'Data Explorer'.");
+        console.log("\nTutorial complete! You can now view these items in your Firebase console under Cloud Firestore.");
         process.exit(0);
     } catch (error) {
         console.error("❌ Seeding failed:", error);

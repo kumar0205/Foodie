@@ -23,7 +23,8 @@ const FoodItem = ({ id, name, price, description, image, isShared = false }) => 
     setIsWishlisted(!!wishlistItems[id]);
   }, [wishlistItems, id]);
 
-  const toggleWishlist = () => {
+  const toggleWishlist = (e) => {
+    e.stopPropagation();
     if (isWishlisted) {
       removeFromWishlist(id);
     } else {
@@ -32,34 +33,44 @@ const FoodItem = ({ id, name, price, description, image, isShared = false }) => 
     setIsWishlisted(!isWishlisted);
   };
 
+  const handleAddToCart = (e) => {
+    e.stopPropagation();
+    addToCart(id);
+  };
+
+  const handleRemoveFromCart = (e) => {
+    e.stopPropagation();
+    removeFromCart(id);
+  };
+
   const handleClick = () => {
     navigate(`/food/${id}`);
   };
 
   return (
-    <div className={`food-item ${isShared ? "shared" : ""}`}>
+    <div className={`food-item ${isShared ? "shared" : ""}`} onClick={handleClick}>
       <div className="food-item-img-container">
-        <img className="food-item-image" src={url + "/images/" + image} alt={name} />
+        <img className="food-item-image" src={image.startsWith("http") ? image : url + "/images/" + image} alt={name} />
 
         {/* ✅ Add to Cart stays at bottom-right */}
         <div className="action-buttons">
           {!cartItems[id] ? (
             <button
               className="cart-btn"
-              onClick={() => addToCart(id)}
+              onClick={handleAddToCart}
               aria-label="Add to Cart"
             >
               <ShoppingCart size={18} />
             </button>
           ) : (
-            <div className="food-item-counter">
+            <div className="food-item-counter" onClick={(e) => e.stopPropagation()}>
               <button
-                onClick={() => removeFromCart(id)}
+                onClick={handleRemoveFromCart}
                 disabled={cartItems[id] <= 1}
               >-</button>
               <p>{cartItems[id]}</p>
               <button
-                onClick={() => addToCart(id)}
+                onClick={handleAddToCart}
                 disabled={cartItems[id] >= 20}
               >+</button>
             </div>
@@ -92,12 +103,18 @@ const FoodItem = ({ id, name, price, description, image, isShared = false }) => 
         {/* ✅ Description */}
         <p className="food-item-desc">{description}</p>
 
-        {/* ✅ Price & View Details */}
+        {/* ✅ Price & Add to Cart */}
         <div className="food-item-footer">
           <p className="food-item-price">${price}</p>
-          <button className="view-btn" onClick={handleClick}>
-            View Details
-          </button>
+          {!cartItems[id] ? (
+            <button className="add-to-cart-footer-btn" onClick={handleAddToCart}>
+              Add to Cart
+            </button>
+          ) : (
+            <button className="view-btn" onClick={handleClick}>
+              View Details
+            </button>
+          )}
         </div>
       </div>
     </div>

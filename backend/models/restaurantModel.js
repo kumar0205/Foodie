@@ -1,8 +1,4 @@
-import mongoose from "mongoose";
+import { createModelClass } from "./modelFactory.js";
 
-const restaurantSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  address: String,
-  phone: String,
-});
-export default mongoose.model("Restaurant", restaurantSchema);
+const Restaurant = createModelClass("restaurants");
+export default Restaurant;

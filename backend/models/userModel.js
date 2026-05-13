@@ -1,15 +1,18 @@
-import mongoose from "mongoose";
+import { createModelClass } from "./modelFactory.js";
 
-const userSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  role: { type: String, enum: ["user", "admin"], default: "user" },
-  favoriteRestaurant: { type: mongoose.Schema.Types.ObjectId, ref: "Restaurant" },
-  favoriteFoods: [{ type: mongoose.Schema.Types.ObjectId, ref: "food" }]
-}, { timestamps: true });
-
-
-const User = mongoose.model('User', userSchema);
+const User = createModelClass("users", {
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    role: { type: String, default: 'customer', enum: ['customer', 'admin', 'delivery'] },
+    cartData: { type: Object, default: {} },
+    address: {
+        name: { type: String },
+        phoneNumber: { type: String },
+        doorNo: { type: String },
+        street: { type: String },
+        village: { type: String },
+        town: { type: String },
+        pincode: { type: String }
+    }
+});
 export default User;
-

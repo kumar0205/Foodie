@@ -114,7 +114,7 @@ const FoodDetail = () => {
 
         <div className="food-detail-container">
           <div className="food-detail-image">
-            <img src={url + "/images/" + foodItem.image} alt={foodItem.name} crossOrigin="anonymous" />
+            <img src={foodItem.image.startsWith("http") ? foodItem.image : url + "/images/" + foodItem.image} alt={foodItem.name} crossOrigin="anonymous" />
           </div>
 
           <div className="food-detail-info">

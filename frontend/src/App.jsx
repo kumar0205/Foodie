@@ -25,11 +25,12 @@ import "./components/FoodDetail/print.css";
 import NotFound from "./pages/Notfound";
 import StoreContextProvider from "./components/context/StoreContext";
 import ScrollToBottom from "./components/ScrollToBottomButton/ScrollToBottomButton";
-import ReferralProgram from "./components/Referrals/ReferralProgram";
 import AboutUs from "./components/Aboutus/Aboutus";
 import FAQ from "./components/FAQ/FAQ";
 import Privacy from "./components/Privacy/privacy";
 import MyOrders from "./pages/MyOrders/MyOrders";
+import TableBooking from "./pages/TableBooking/TableBooking";
+import MyBookings from "./pages/MyBookings/MyBookings";
 
 const App = () => {
   const [showLogin, setShowLogin] = useState(false);
@@ -101,11 +102,13 @@ const App = () => {
             <Route path="/success" element={<Success />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/restaurants" element={<Restaurants />} />
-            <Route path="/referral" element={<ReferralProgram />} />
+
             <Route path="/restaurant/:id" element={<RestaurantDetail />} />
             <Route path="/aboutus" element={<AboutUs />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/myorders" element={<MyOrders />} />
+            <Route path="/book-table" element={<TableBooking />} />
+            <Route path="/mybookings" element={<MyBookings />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
 

@@ -10,11 +10,9 @@
 
 .list-table-format {
     display: grid;
-    /* Defines the columns for your table layout */
-    /* Adjust fractions (fr) as needed: Image, Name, Category, Price, Action */
-    grid-template-columns: 0.5fr 2fr 1fr 1fr 0.5fr;
+    grid-template-columns: 0.5fr 1.5fr 1fr 0.8fr 1fr 0.8fr;
     align-items: center;
-    gap: 10px;
+    gap: 15px;
     padding: 12px 15px;
     border: 1px solid #cacaca;
     font-size: 13px;
@@ -22,7 +20,7 @@
 
 .list-table-format.title {
     background-color: #f9f9f9;
-    font-weight: bold; /* Overwrites the <b> tag for consistency */
+    font-weight: bold;
 }
 
 .list-table-format img {
@@ -32,38 +30,140 @@
     border-radius: 4px;
 }
 
-/* --- Button Styling --- */
-
-/* This is the new style for your remove button */
-.remove-btn {
-    width: 20px;
+/* Toggle Switch Styles */
+.toggle-switch {
+    width: 40px;
     height: 20px;
-    border: none;
-    background-color: #e74c3c; /* A nice, clear red for deletion */
-    color: rgb(22, 1, 1);
-    font-size: 16px;
-    font-weight: bold;
-    border-radius: 5px;
+    background-color: #ccc;
+    border-radius: 20px;
+    position: relative;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s;
+}
+
+.toggle-switch.on {
+    background-color: #2ecc71;
+}
+
+.toggle-knob {
+    width: 16px;
+    height: 16px;
+    background-color: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: left 0.3s;
+}
+
+.toggle-switch.on .toggle-knob {
+    left: 22px;
+}
+
+/* Action Buttons */
+.list-actions {
     display: flex;
-    align-items: center;
+    gap: 10px;
+}
+
+.edit-btn {
+    border: none;
+    background-color: #3498db;
+    color: white;
+    padding: 5px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.remove-btn {
+    width: 25px;
+    height: 25px;
+    border: none;
+    background-color: #e74c3c;
+    color: white;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
     justify-content: center;
+    align-items: center;
+    z-index: 1000;
 }
 
-.remove-btn:hover {
-    background-color: #c0392b; /* A darker red for the hover effect */
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 500px;
+    max-width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
 }
 
-/* --- Media query for smaller screens --- */
-@media (max-width: 600px) {
+.modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+}
+
+.cancel-btn {
+    background: #ccc;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.save-btn {
+    background: #ff6347;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.flex-col {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.add-category-price {
+    display: flex;
+    gap: 20px;
+}
+
+.modal-content input, .modal-content textarea, .modal-content select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+@media (max-width: 768px) {
     .list-table-format {
-        /* On small screens, make Name column smaller and hide Category */
-        grid-template-columns: 1fr 3fr 1fr;
-        gap: 15px;
+        grid-template-columns: 1fr 2fr 1fr;
     }
-    .list-table-format.title {
-        /* Hide elements that won't fit */
+    .list-table-format.title b:nth-child(3),
+    .list-table-format.title b:nth-child(4),
+    .list-table-format.title b:nth-child(5) {
         display: none;
     }
 }

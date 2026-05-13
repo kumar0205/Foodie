@@ -90,6 +90,47 @@
   max-height: calc(80vh - 60px); 
 }
 
+/* Map Search Form */
+.map-search-form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.map-search-form input {
+  flex: 1;
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.map-search-form input:focus {
+  border-color: tomato;
+}
+
+.map-search-form button {
+  padding: 8px 15px;
+  background-color: #333;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.map-search-form button:hover {
+  background-color: #555;
+}
+
+.map-search-form button:disabled {
+  background-color: #999;
+  cursor: not-allowed;
+}
+
 /* Loading State */
 .loading {
   text-align: center;
@@ -108,6 +149,30 @@
   border-radius: 8px;
   overflow: hidden;
   border: 1px solid #ddd;
+  position: relative;
+}
+
+.locate-me-btn {
+  position: absolute;
+  bottom: 20px;
+  right: 10px;
+  z-index: 1000;
+  background: white;
+  border: 2px solid rgba(0,0,0,0.2);
+  border-radius: 4px;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+  transition: background-color 0.2s;
+}
+
+.locate-me-btn:hover {
+  background-color: #f4f4f4;
 }
 
 .map {
@@ -137,6 +202,15 @@
   color: #4c4b4b;
   font-size: 0.9rem;
   line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.location-hint {
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 8px;
+  border-top: 1px dashed #ddd;
+  padding-top: 8px;
 }
 
 /* Action Buttons */

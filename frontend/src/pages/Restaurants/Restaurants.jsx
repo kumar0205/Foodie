@@ -54,9 +54,10 @@ const Restaurants = () => {
     },
   ];
 
-  // Filter restaurants by cuisine search
+  // Filter restaurants by cuisine or name search
   const filteredRestaurants = restaurants.filter((restaurant) =>
-    restaurant.cuisine.toLowerCase().includes(search.toLowerCase())
+    restaurant.cuisine.toLowerCase().includes(search.toLowerCase()) ||
+    restaurant.name.toLowerCase().includes(search.toLowerCase())
   );
 
   const renderStars = (rating) => {

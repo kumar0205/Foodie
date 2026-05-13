@@ -1,14 +1,4 @@
-import mongoose from "mongoose";
+import { createModelClass } from "./modelFactory.js";
 
-const cartSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  items: [
-    {
-      foodId: { type: mongoose.Schema.Types.ObjectId, ref: "food", required: true },
-      quantity: { type: Number, required: true },
-      restaurantId: { type: mongoose.Schema.Types.ObjectId, ref: "Restaurant", required: false }
-    }
-  ]
-});
-
-export default mongoose.model("Cart", cartSchema);
+const Cart = createModelClass("carts");
+export default Cart;

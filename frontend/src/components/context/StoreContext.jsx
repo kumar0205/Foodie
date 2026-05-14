@@ -41,7 +41,11 @@ const StoreContextProvider = ({ children }) => {
           if (response.data.items) {
             const cartData = {};
             response.data.items.forEach(item => {
-              cartData[item.foodId._id || item.foodId] = item.quantity;
+              const itemId = item.foodId._id || item.foodId;
+              // Only add if the item exists in our current food_list
+              if (food_list.some(f => f._id === itemId)) {
+                cartData[itemId] = item.quantity;
+              }
             });
             setCartItems(cartData);
           }
@@ -112,6 +116,14 @@ const StoreContextProvider = ({ children }) => {
     }, 0);
   };
 
+  /** Get total items count (only for items that exist in food_list) */
+  const getTotalCartItems = () => {
+    return Object.entries(cartItems).reduce((total, [itemId, qty]) => {
+      const itemInfo = food_list.find((p) => p._id === itemId);
+      return itemInfo ? total + (Number(qty) || 0) : total;
+    }, 0);
+  };
+
   /** Add an item to wishlist */
   const addToWishlist = (itemId) => {
     if (!wishlistItems[itemId]) {
@@ -143,12 +155,30 @@ const StoreContextProvider = ({ children }) => {
   /** Total wishlist count */
   const getWishlistCount = () => Object.keys(wishlistItems).length;
 
+  /** Clear the entire cart */
+  const clearCart = async (silent = false) => {
+    setCartItems({});
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      try {
+        await axios.post(`${url}/api/cart/clear`, {}, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (!silent) toast.success("Cart cleared!");
+      } catch (error) {
+        console.error("Error clearing cart:", error);
+      }
+    }
+  };
+
   const contextValue = {
     food_list,
     cartItems,
     addToCart,
     removeFromCart,
+    clearCart,
     getTotalCartAmount,
+    getTotalCartItems,
     wishlistItems,
     addToWishlist,
     removeFromWishlist,

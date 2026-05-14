@@ -16,7 +16,7 @@ import SharedWishlist from "./pages/wishlist/SharedWishlist";
 import Restaurants from "./pages/Restaurants/Restaurants";
 import Success from "./pages/Success/Success";
 import RestaurantDetail from "./pages/Restaurants/RestaurantDetail";
-import Chatbot from "./components/Chatbot/Chatbot";
+import FloatingCartButton from "./components/FloatingCartButton/FloatingCartButton";
 import ContactPage from "./pages/Contactpage";
 import { Toaster } from "react-hot-toast";
 import LoadingAnimation from "./components/LoadingAnimation";
@@ -24,7 +24,6 @@ import ScrollToTop from "../utility/ScrollToTop";
 import "./components/FoodDetail/print.css";
 import NotFound from "./pages/Notfound";
 import StoreContextProvider from "./components/context/StoreContext";
-import ScrollToBottom from "./components/ScrollToBottomButton/ScrollToBottomButton";
 import AboutUs from "./components/Aboutus/Aboutus";
 import FAQ from "./components/FAQ/FAQ";
 import Privacy from "./components/Privacy/privacy";
@@ -66,7 +65,6 @@ const App = () => {
         <div className="app">
           <Navbar setShowLogin={setShowLogin} />
           <ScrollToTop />
-          <ScrollToBottom />
 
           <Routes>
             <Route path="/" element={<Home />} />
@@ -113,7 +111,6 @@ const App = () => {
           </Routes>
 
           <ScrollToTopButton /> {/* floating button */}
-          <CartSummaryBar />
           <AppDownload />
 
           {/* ✅ Footer now contains FAQ */}
@@ -121,7 +118,7 @@ const App = () => {
             <FAQ />
           </Footer>
 
-          <Chatbot /> {/* AI Food Assistant */}
+          <FloatingCartButton /> {/* Floating Cart Action Button */}
         </div>
       </StoreContextProvider>
     </ThemeContextProvider>

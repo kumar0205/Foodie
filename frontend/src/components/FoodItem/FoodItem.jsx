@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 import "./FoodItem.css";
 import { StoreContext } from "../context/StoreContext";
 import { useNavigate } from "react-router-dom";
-import { Heart, ShoppingCart } from "lucide-react";
+import { Heart, Plus, Minus, Star } from "lucide-react";
 import { assets } from "../../assets/frontend_assets/assets";
 
 const FoodItem = ({ id, name, price, description, image, isShared = false }) => {
@@ -48,73 +48,50 @@ const FoodItem = ({ id, name, price, description, image, isShared = false }) => 
   };
 
   return (
-    <div className={`food-item ${isShared ? "shared" : ""}`} onClick={handleClick}>
-      <div className="food-item-img-container">
-        <img className="food-item-image" src={image.startsWith("http") ? image : url + "/images/" + image} alt={name} />
-
-        {/* ✅ Add to Cart stays at bottom-right */}
-        <div className="action-buttons">
-          {!cartItems[id] ? (
-            <button
-              className="cart-btn"
-              onClick={handleAddToCart}
-              aria-label="Add to Cart"
-            >
-              <ShoppingCart size={18} />
-            </button>
-          ) : (
-            <div className="food-item-counter" onClick={(e) => e.stopPropagation()}>
-              <button
-                onClick={handleRemoveFromCart}
-                disabled={cartItems[id] <= 1}
-              >-</button>
-              <p>{cartItems[id]}</p>
-              <button
-                onClick={handleAddToCart}
-                disabled={cartItems[id] >= 20}
-              >+</button>
-            </div>
-          )}
+    <div className={`food-item-fk ${isShared ? "shared" : ""}`} onClick={handleClick}>
+      <div className="fk-img-container">
+        <img 
+          className="fk-image" 
+          src={image.startsWith("http") ? image : url + "/images/" + image} 
+          alt={name} 
+          loading="lazy" 
+        />
+        <div className="fk-rating-badge">
+          <span>4.5</span>
+          <Star size={10} fill="currentColor" />
         </div>
+        <button 
+          className={`fk-wishlist-btn ${isWishlisted ? "active" : ""}`}
+          onClick={toggleWishlist}
+        >
+          <Heart size={18} fill={isWishlisted ? "#ff4c24" : "none"} color={isWishlisted ? "#ff4c24" : "#666"} />
+        </button>
       </div>
 
-      {/* ✅ Food Info Section */}
-      <div className="food-item-info">
-        {/* ✅ Heart + Name */}
-        <div className="food-item-header">
-          <p className="food-item-name">{name}</p>
-          <button
-            className={`wishlist-inline-btn ${isWishlisted ? "active" : ""}`}
-            onClick={toggleWishlist}
-            aria-label="Add to Wishlist"
-          >
-            <Heart
-              size={20}
-              color={isWishlisted ? "#ff4d6d" : "#888"}
-              fill={isWishlisted ? "#ff4d6d" : "none"}
-            />
-          </button>
-        </div>
-        <div className="food-item-rating">
-          <img src={assets.rating_starts} alt="Rating" width={70} />
-        </div>
-
-
-        {/* ✅ Description */}
-        <p className="food-item-desc">{description}</p>
-
-        {/* ✅ Price & Add to Cart */}
-        <div className="food-item-footer">
-          <p className="food-item-price">${price}</p>
-          {!cartItems[id] ? (
-            <button className="add-to-cart-footer-btn" onClick={handleAddToCart}>
-              Add to Cart
-            </button>
-          ) : (
-            <button className="view-btn" onClick={handleClick}>
-              View Details
-            </button>
-          )}
+      <div className="fk-info">
+        <h3 className="fk-name">{name}</h3>
+        <p className="fk-desc">{description}</p>
+        
+        <div className="fk-footer">
+          <div className="fk-price-section">
+            <span className="fk-price">₹{price}</span>
+            <span className="fk-old-price">₹{(price * 1.2).toFixed(0)}</span>
+          </div>
+          
+          <div className="fk-action-container" onClick={(e) => e.stopPropagation()}>
+            {!cartItems[id] ? (
+              <button className="fk-add-btn" onClick={handleAddToCart}>
+                <span>ADD</span>
+                <Plus size={14} />
+              </button>
+            ) : (
+              <div className="fk-counter">
+                <button onClick={handleRemoveFromCart}><Minus size={14} /></button>
+                <span>{cartItems[id]}</span>
+                <button onClick={handleAddToCart}><Plus size={14} /></button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

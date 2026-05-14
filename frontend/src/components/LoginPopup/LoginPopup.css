@@ -5,7 +5,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 1000;
+  z-index: 3000;
   background: rgba(0, 0, 0, 0.7);
   display: grid;
   backdrop-filter: blur(8px);

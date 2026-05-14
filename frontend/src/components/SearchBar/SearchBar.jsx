@@ -57,27 +57,27 @@ const SearchBar = ({
   // Sample data for demonstration
   const defaultSuggestions = useMemo(
     () => [
-      "Pizza Margherita",
+      "Salad",
+      "Rolls",
+      "Deserts",
+      "Sandwich",
+      "Cake",
+      "Pure Veg",
+      "Pasta",
+      "Noodles",
       "Chicken Biryani",
-      "Pasta Carbonara",
-      "Sushi Roll",
-      "Burger Deluxe",
-      "Thai Green Curry",
-      "Caesar Salad",
-      "Fish and Chips",
-      "Tacos",
-      "Ramen Noodles",
+      "Peri Peri Fries",
     ],
     []
   );
 
   const defaultRecentSearches = useMemo(
-    () => ["Pizza", "Chinese food", "Desserts"],
+    () => ["Salad", "Pasta", "Cake"],
     []
   );
 
   const defaultPopularSearches = useMemo(
-    () => ["Pizza", "Burger", "Sushi", "Biryani", "Pasta"],
+    () => ["Pizza", "Burger", "Noodles", "Rolls", "Cake"],
     []
   );
 

@@ -139,12 +139,125 @@
 }
 
 
-@media (max-width:750px ){
-    .cart-bottom{
-        flex-direction: column-reverse;
-    }
-    .cart-promo-code{
-        justify-content: start;
-    }
+@media (max-width: 750px) {
+  .cart-bottom {
+    flex-direction: column-reverse;
+  }
+  .cart-promo-code {
+    justify-content: start;
+  }
+  .cart-items-title {
+    display: none; /* Hide header on mobile */
+  }
+  .cart-items-item {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    grid-template-areas: 
+      "img title"
+      "img price"
+      "img qty"
+      "img total";
+    gap: 10px;
+    padding: 15px;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    align-items: center;
+  }
+  .cart-items-item img {
+    grid-area: img;
+    width: 80px;
+  }
+  .cart-items-item a {
+    grid-area: title;
+    font-weight: bold;
+    font-size: 16px;
+  }
+  .cart-items-item p:nth-of-type(1) {
+    grid-area: price;
+    color: #666;
+  }
+  .cart-items-item .cart-quantity-controls {
+    grid-area: qty;
+  }
+  .cart-items-item p:nth-of-type(2) {
+    grid-area: total;
+    font-weight: bold;
+    color: tomato;
+  }
+  .cart hr {
+    display: none; /* Hide HRs between cards */
+  }
+}
 }
 
+/* === Free Delivery Progress Banner === */
+.free-delivery-banner {
+  background: linear-gradient(135deg, #fff8f6 0%, #fff3f0 100%);
+  border: 1.5px solid #ffd5cc;
+  border-radius: 14px;
+  padding: 18px 22px;
+  margin-top: 24px;
+  margin-bottom: 0;
+  box-shadow: 0 4px 16px rgba(252, 75, 50, 0.07);
+}
+
+.free-delivery-banner-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.free-delivery-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.free-delivery-label {
+  font-size: 14.5px;
+  color: #444;
+  line-height: 1.4;
+}
+
+.free-delivery-label strong {
+  color: #fc4b32;
+}
+
+.free-delivery-unlocked {
+  color: #16a34a;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.free-delivery-track {
+  width: 100%;
+  height: 10px;
+  background-color: #fde8e4;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.free-delivery-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #fc4b32, #ff7c5c);
+  border-radius: 999px;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 8px rgba(252, 75, 50, 0.35);
+}
+
+.free-delivery-milestones {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #aaa;
+  font-weight: 500;
+}
+
+@media (max-width: 750px) {
+  .free-delivery-banner {
+    padding: 14px 16px;
+    margin-bottom: 20px;
+  }
+}

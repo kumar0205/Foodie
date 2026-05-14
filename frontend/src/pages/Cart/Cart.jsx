@@ -4,7 +4,7 @@ import { StoreContext } from "../../components/context/StoreContext";
 import { useNavigate, Link } from "react-router-dom";
 
 const Cart = () => {
-  const { cartItems, food_list, removeFromCart, getTotalCartAmount, addToCart, url } = useContext(StoreContext);
+  const { cartItems, food_list, removeFromCart, getTotalCartAmount, addToCart, clearCart, url } = useContext(StoreContext);
   const navigate = useNavigate();
 
   // Check if cart is empty
@@ -112,11 +112,10 @@ const Cart = () => {
                 <div className="cart-items-title cart-items-item">
                   <img src={item.image.startsWith("http") ? item.image : url + "/images/" + item.image} alt="" />
                   <Link to={`/food/${item._id}`}>{item.name}</Link>
-                  <p>${item.price}</p>
+                  <p>₹{item.price}</p>
                   <div className="cart-quantity-controls">
                     <button
                       onClick={() => removeFromCart(item._id)}
-                      disabled={cartItems[item._id] <= 1}   // disable minus if quantity is going less than 1
                     >-</button>
                     <span>{cartItems[item._id]}</span>
                     <button
@@ -124,7 +123,7 @@ const Cart = () => {
                       disabled={cartItems[item._id] >= 20}   // disable plus if quantity goes above 20
                     >+</button>
                   </div>
-                  <p>${item.price * cartItems[item._id]}</p>
+                  <p>₹{item.price * cartItems[item._id]}</p>
                 </div>
                 <hr />
               </React.Fragment>
@@ -133,33 +132,49 @@ const Cart = () => {
           return null;
         })}
       </div>
+
+      {/* Free Delivery Progress Bar - between items and totals */}
+      <div className="free-delivery-banner">
+        <div className="free-delivery-banner-header">
+          <span className="free-delivery-icon">🚚</span>
+          <span className="free-delivery-label">
+            {getTotalCartAmount() < 500
+              ? <>Add <strong>₹{(500 - getTotalCartAmount()).toFixed(0)}</strong> more for <strong>Free Delivery!</strong></>
+              : <span className="free-delivery-unlocked">🎉 You've unlocked Free Delivery!</span>}
+          </span>
+        </div>
+        <div className="free-delivery-track">
+          <div
+            className="free-delivery-fill"
+            style={{ width: `${Math.min(getTotalCartAmount() / 500, 1) * 100}%` }}
+          />
+        </div>
+        <div className="free-delivery-milestones">
+          <span>₹0</span>
+          <span>₹500</span>
+        </div>
+      </div>
+
       <div className="cart-bottom">
         <div className="cart-total">
-          <h2>Cart Totals</h2>
+          <div className="cart-header-row">
+            <h2>Cart Totals</h2>
+          </div>
           <div className="cart-total-details">
             <p>Subtotal</p>
-            <p>${getTotalCartAmount()}</p>
+            <p>₹{getTotalCartAmount()}</p>
           </div>
           <hr />
           <div className="cart-total-details">
             <p>Delivery Fee</p>
-            <p>${getTotalCartAmount() === 0 ? 0 : 2}</p>
+            <p>{getTotalCartAmount() >= 500 ? <span style={{color:'#2ecc71', fontWeight:'600'}}>FREE</span> : <>₹40</>}</p>
           </div>
           <hr />
           <div className="cart-total-details">
             <b><p>Total</p></b>
-            <b><p>${getTotalCartAmount() === 0 ? 0 : getTotalCartAmount() + 2}</p></b>
+            <b><p>₹{getTotalCartAmount() === 0 ? 0 : getTotalCartAmount() + (getTotalCartAmount() >= 500 ? 0 : 40)}</p></b>
           </div>
           <button onClick={() => navigate('/order')}>PROCEED TO CHECKOUT</button>
-        </div>
-        <div className="cart-promo-code">
-          <div>
-            <p>If you have a promo code, Enter it here</p>
-            <div className="cart-promocode-input">
-              <input placeholder="Promo Code" type="text" />
-              <button>Submit</button>
-            </div>
-          </div>
         </div>
       </div>
     </div>

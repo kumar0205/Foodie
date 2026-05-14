@@ -9,6 +9,20 @@
 @media (max-width: 768px) {
   .place-order {
     margin: 20px;
+    flex-direction: column;
+    gap: 30px;
+  }
+  .place-order-left .title {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  .place-order-left .multi-fields {
+    flex-direction: column;
+    gap: 0;
+  }
+  .place-order-left, .place-order-right {
+    width: 100%;
+    max-width: 100%;
   }
 }
 
@@ -71,13 +85,14 @@
 }
 
 .shake {
-    animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+    animation: shake 0.45s cubic-bezier(.36,.07,.19,.97) both;
 }
 
 @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    10%, 30%, 50%, 70%, 90% { transform: translateX(-6px); }
-    20%, 40%, 60%, 80% { transform: translateX(6px); }
+    0%         { transform: translateX(0); }
+    15%, 45%, 75% { transform: translateX(-8px); }
+    30%, 60%, 90% { transform: translateX(8px); }
+    100%       { transform: translateX(0); }
 }
 
 .warning-icon {

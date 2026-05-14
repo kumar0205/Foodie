@@ -2,14 +2,11 @@ import React, { useContext, useEffect, useState } from 'react'
 import './MyBookings.css'
 import { StoreContext } from '../../components/context/StoreContext';
 import axios from 'axios';
-import { assets } from '../../assets/frontend_assets/assets';
-
-import BookingTicket from '../../components/BookingTicket/BookingTicket';
+import { Calendar, Clock, Users, Utensils, CheckCircle2, Clock3, XCircle } from 'lucide-react';
 
 const MyBookings = () => {
     const { url } = useContext(StoreContext);
     const [bookings, setBookings] = useState([]);
-    const [showTicket, setShowTicket] = useState(null);
 
     const fetchBookings = async () => {
         const token = localStorage.getItem("authToken");
@@ -31,39 +28,60 @@ const MyBookings = () => {
         fetchBookings();
     }, [])
 
-    return (
-        <div className='my-bookings'>
-            <h2>My Table Reservations</h2>
-            
-            {showTicket && (
-                <div className="ticket-modal" onClick={() => setShowTicket(null)}>
-                    <div className="ticket-modal-content" onClick={e => e.stopPropagation()}>
-                        <BookingTicket booking={showTicket} />
-                        <button className="close-btn" onClick={() => setShowTicket(null)}>Close</button>
-                    </div>
-                </div>
-            )}
+    const getStatusIcon = (status) => {
+        switch (status) {
+            case 'Confirmed': return <CheckCircle2 size={16} />;
+            case 'Cancelled': return <XCircle size={16} />;
+            default: return <Clock3 size={16} />;
+        }
+    }
 
-            <div className="container">
-                {bookings.length === 0 ? <p>No reservations found.</p> : 
-                bookings.map((booking, index) => (
-                    <div key={index} className='my-bookings-item'>
-                        <img src={assets.parcel_icon} alt="" />
-                        <div className='booking-details'>
-                            <p><b>Table #{booking.tableNo}</b></p>
-                            <p>{booking.date} at {booking.time}</p>
-                            <p>Guests: {booking.guests}</p>
-                        </div>
-                        <p className='status'>
-                            <span className={booking.status === "Confirmed" ? "green-bullet" : booking.status === "Cancelled" ? "red-bullet" : "orange-bullet"}>&#x25cf;</span>
-                            <b>{booking.status}</b>
-                        </p>
-                        <div className="actions">
-                            <button onClick={() => setShowTicket(booking)}>View Ticket</button>
-                            <button onClick={fetchBookings}>Refresh</button>
-                        </div>
+    return (
+        <div className='my-bookings-container'>
+            <div className="bookings-header">
+                <h2>My Reservations</h2>
+                <p>Manage your upcoming dining experiences</p>
+            </div>
+            
+            <div className="bookings-grid">
+                {bookings.length === 0 ? (
+                    <div className="empty-bookings">
+                        <Utensils size={48} />
+                        <p>No reservations found. Time to book a table!</p>
                     </div>
-                ))}
+                ) : (
+                    bookings.map((booking, index) => (
+                        <div key={index} className='booking-card'>
+                            <div className={`status-badge ${booking.status.toLowerCase()}`}>
+                                {getStatusIcon(booking.status)}
+                                <span>{booking.status}</span>
+                            </div>
+                            
+                            <div className="booking-card-header">
+                                <div className="table-tag">Table #{booking.tableNo}</div>
+                            </div>
+                            
+                            <div className="booking-card-details">
+                                <div className="detail-item">
+                                    <Calendar size={18} />
+                                    <span>{booking.date}</span>
+                                </div>
+                                <div className="detail-item">
+                                    <Clock size={18} />
+                                    <span>{booking.time}</span>
+                                </div>
+                                <div className="detail-item">
+                                    <Users size={18} />
+                                    <span>{booking.guests} Guests</span>
+                                </div>
+                            </div>
+                            
+                            <div className="booking-card-footer">
+                                <p className="booking-id">ID: #{booking._id.slice(-6).toUpperCase()}</p>
+                            </div>
+                        </div>
+                    ))
+                )}
             </div>
         </div>
     )

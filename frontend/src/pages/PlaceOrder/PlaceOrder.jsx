@@ -63,7 +63,7 @@ import { StoreContext } from "../../components/context/StoreContext";
 import { useNavigate } from "react-router-dom";
 
 const PlaceOrder = () => {
-    const { getTotalCartAmount, url, setCartItems } = useContext(StoreContext);
+    const { getTotalCartAmount, url, clearCart, cartItems, food_list } = useContext(StoreContext);
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: '',
@@ -75,7 +75,15 @@ const PlaceOrder = () => {
         pincode: ''
     });
     const [phoneError, setPhoneError] = useState(false);
-    const [shakeKey, setShakeKey] = useState(0);
+    const [isShaking, setIsShaking] = useState(false);
+
+    const triggerShake = () => {
+        setIsShaking(false);
+        // Use setTimeout to let React re-render with shake removed before adding it back
+        setTimeout(() => setIsShaking(true), 10);
+        // Auto-remove shake class after animation completes
+        setTimeout(() => setIsShaking(false), 500);
+    };
 
     const isPhoneValid = (phone) => {
         const phoneRegex = /^[6-9]\d{9}$/; // Indian phone number format (10 digits)
@@ -129,8 +137,23 @@ const PlaceOrder = () => {
         const { name, value } = e.target;
         if (name === 'phone') {
             const onlyNums = value.replace(/[^0-9]/g, '');
+
+            if (onlyNums.length > 10) {
+                // Exceeded 10 digits — shake, show error, cap at 10
+                setPhoneError(true);
+                triggerShake();
+                setFormData(prev => ({ ...prev, [name]: onlyNums.slice(0, 10) }));
+                return;
+            }
+
             setFormData(prev => ({ ...prev, [name]: onlyNums }));
-            if (phoneError) setPhoneError(false); // Reset error while typing
+
+            // Clear error once valid 10-digit number
+            if (onlyNums.length === 10 && isPhoneValid(onlyNums)) {
+                setPhoneError(false);
+            } else if (phoneError && onlyNums.length < 10) {
+                setPhoneError(false); // Reset while user is still typing
+            }
         } else {
             setFormData(prev => ({
                 ...prev,
@@ -140,10 +163,10 @@ const PlaceOrder = () => {
     };
 
     const handlePhoneBlur = () => {
-        if (!isPhoneValid(formData.phone)) {
+        if (formData.phone.length > 0 && !isPhoneValid(formData.phone)) {
             setPhoneError(true);
-            setShakeKey(prev => prev + 1); // Increment key to restart animation
-        } else {
+            triggerShake();
+        } else if (isPhoneValid(formData.phone)) {
             setPhoneError(false);
         }
     };
@@ -154,6 +177,13 @@ const PlaceOrder = () => {
         const token = localStorage.getItem("authToken");
         if (!token) {
             alert("Please log in to place your order.");
+            return;
+        }
+
+        // Validate phone on submit too
+        if (!isPhoneValid(formData.phone)) {
+            setPhoneError(true);
+            triggerShake();
             return;
         }
 
@@ -181,11 +211,21 @@ const PlaceOrder = () => {
             console.error("Error saving address:", error);
         }
 
-        // 2. Place the order
+        // 2. Build order items from cart
+        const orderItems = Object.entries(cartItems)
+            .filter(([id, qty]) => qty > 0)
+            .map(([id, qty]) => {
+                const food = food_list.find(f => f._id === id);
+                return { foodId: id, quantity: qty, price: food?.price || 0 };
+            });
+
+        const deliveryFee = getTotalCartAmount() >= 500 ? 0 : 40;
         const orderData = {
             ...formData,
+            items: orderItems,
             cartTotal: getTotalCartAmount(),
-            deliveryFee: getTotalCartAmount() === 0 ? 0 : 2,
+            deliveryFee,
+            totalAmount: getTotalCartAmount() + deliveryFee,
         };
 
         try {
@@ -203,7 +243,7 @@ const PlaceOrder = () => {
             const data = await response.json();
             console.log("Server response:", data);
 
-            setCartItems({}); // Clear cart Locally
+            await clearCart(true); // Clear cart locally + backend (silently after order)
             navigate("/success");
         } catch (error) {
             console.error("Order error:", error);
@@ -224,7 +264,7 @@ const PlaceOrder = () => {
                         value={formData.name}
                         onChange={handleInputChange}
                     />
-                    <div key={shakeKey} className={`phone-input-container ${phoneError ? 'shake error' : ''}`}>
+                    <div className={`phone-input-container ${phoneError ? 'error' : ''} ${isShaking ? 'shake' : ''}`}>
                         <span className="prefix">+91</span>
                         <input
                             name="phone"
@@ -289,12 +329,12 @@ const PlaceOrder = () => {
                         <h2>Cart Totals</h2>
                         <div className="cart-total-details">
                             <p>Subtotal</p>
-                            <p>${getTotalCartAmount()}</p>
+                            <p>₹{getTotalCartAmount()}</p>
                         </div>
                         <hr />
                         <div className="cart-total-details">
                             <p>Delivery Fee</p>
-                            <p>${getTotalCartAmount() === 0 ? 0 : 2}</p>
+                            <p>₹{getTotalCartAmount() === 0 ? 0 : (getTotalCartAmount() >= 500 ? 0 : 40)}</p>
                         </div>
                         <hr />
                         <div className="cart-total-details">
@@ -302,7 +342,7 @@ const PlaceOrder = () => {
                                 <p>Total</p>
                             </b>
                             <b>
-                                <p>${getTotalCartAmount() === 0 ? 0 : getTotalCartAmount() + 2}</p>
+                                <p>₹{getTotalCartAmount() === 0 ? 0 : getTotalCartAmount() + (getTotalCartAmount() >= 500 ? 0 : 40)}</p>
                             </b>
                         </div>
                         <button 

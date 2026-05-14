@@ -340,12 +340,44 @@
 @media (max-width: 768px) {
     .booking-page-header {
         flex-direction: column;
-        align-items: flex-start;
-        gap: 20px;
+        align-items: center;
+        text-align: center;
+        gap: 15px;
+    }
+    .header-content h1 {
+        font-size: 1.8rem;
+    }
+    .header-content p {
+        font-size: 0.95rem;
     }
     .status-legend {
         width: 100%;
-        overflow-x: auto;
-        white-space: nowrap;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px 15px;
+        padding: 10px;
+        border-radius: 15px;
+    }
+}
+@media (max-width: 480px) {
+    .table-booking-container {
+        padding: 20px 3%;
+    }
+    .table-grid-visual {
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+        gap: 12px;
+    }
+    .table-card {
+        padding: 15px;
+    }
+    .glass-card {
+        padding: 20px;
+    }
+    .input-row {
+        grid-template-columns: 1fr;
+    }
+    .header-content h1 {
+        font-size: 1.5rem;
     }
 }
